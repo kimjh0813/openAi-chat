@@ -1,8 +1,8 @@
-import Chat from "./pages";
+import Chat from "./components/Chat";
 
 function App() {
   return (
-    <div className="root">
+    <div className="max-w-[500px] mx-auto w-full h-screen">
       <Chat />
     </div>
   );
