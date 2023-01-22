@@ -10,23 +10,21 @@ interface Chat {
 }
 
 const Chat = () => {
-  const inputRef = useRef<InputRef>(null);
-
-  const [userText, setUserText] = useState<Chat[]>([]);
+  const [chatText, setChatText] = useState<Chat[]>([]);
+  const [inputValue, setInputValue] = useState<string>();
 
   const openAi = async () => {
-    const userChat = inputRef.current?.input?.value;
+    if (!inputValue) return;
 
-    if (!userChat) return;
+    setChatText((prev) => [...prev, { user: inputValue }]);
 
-    setUserText((prev) => [...prev, { user: userChat }]);
+    setInputValue("");
 
     const response = await chatQuery({
-      prompt: userChat,
+      prompt: inputValue,
     });
     if (!response) return;
-    console.log(response);
-    setUserText((prev) => [
+    setChatText((prev) => [
       ...prev,
       { ai: response.replace("\n", "").replace("\n", "") },
     ]);
@@ -36,8 +34,8 @@ const Chat = () => {
     <div>
       <div className="bg-[#ccc] h-[calc(100vh-64px)] overflow-y-auto">
         <div className="flex flex-col mb-8">
-          {userText.length > 0 &&
-            userText.map(({ user, ai }, index) => {
+          {chatText.length > 0 &&
+            chatText.map(({ user, ai }, index) => {
               return (
                 <div key={index} className="flex">
                   {user && (
@@ -57,7 +55,18 @@ const Chat = () => {
       </div>
       <div className="w-full fixed left-0 bottom-0">
         <div className="flex mx-auto max-w-[500px] w-full bg-[#777] p-4 justify-between ">
-          <Input ref={inputRef} size="large" className="w-[390px]" />
+          <Input
+            value={inputValue}
+            size="large"
+            className="w-[390px]"
+            onChange={(e) => {
+              setInputValue(e.target.value);
+            }}
+            onPressEnter={(e) => {
+              if (e.nativeEvent.isComposing) return;
+              openAi();
+            }}
+          />
           <Button onClick={openAi} className="text-white h-[40px]">
             전송
           </Button>
